@@ -6,7 +6,7 @@ services:
       POSTGRES_PASSWORD: training_password
       POSTGRES_DB: training_db
     ports:
-      - "5433:5432"
+      - "5435:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -15,6 +15,7 @@ services:
     command: >
       sh -c "python manage.py makemigrations &&
              python manage.py migrate &&
+             python manage.py createsuperuser --noinput || true &&
              python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
@@ -26,6 +27,9 @@ services:
     environment:
       - DATABASE_URL=postgres://training_user:training_password@db:5432/training_db
       - ALLOWED_HOSTS=*
+      - DJANGO_SUPERUSER_USERNAME=admin
+      - DJANGO_SUPERUSER_PASSWORD=admin
+      - DJANGO_SUPERUSER_EMAIL=admin@admin.com
     depends_on:
       - db
 
