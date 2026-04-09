@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: training_user
+      POSTGRES_PASSWORD: training_password
+      POSTGRES_DB: training_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  web:
+    build: .
+    command: >
+      sh -c "python manage.py makemigrations &&
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app
+      - /app/.venv
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgres://training_user:training_password@db:5432/training_db
+      - ALLOWED_HOSTS=*
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
